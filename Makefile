@@ -9,7 +9,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = TubeRepair-Tweak
 
-TubeRepair-Tweak_FILES = Tweak.x SignInCredentialsManager.m
+TubeRepair-Tweak_FILES = Tweak.x SignInCredentialsManager.m Player.m
 TubeRepair-Tweak_CFLAGS = -fobjc-arc
 TubeRepair-Tweak_FRAMEWORKS = UIKit
 

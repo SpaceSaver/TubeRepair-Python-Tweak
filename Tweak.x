@@ -32,7 +32,8 @@ void betaSetDefaultUrl(void) {
     NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:settingsPath];
     NSString *modifiedURLString = URLString;
     NSString *newURL = [prefs objectForKey:@"URLEndpoint"];
-    
+    // NSLog(@"Request: %@", URLString);
+
     if (newURL && [URLString rangeOfString:@"https://www.google.com"].location != NSNotFound) {
         modifiedURLString = [URLString stringByReplacingOccurrencesOfString:@"https://www.google.com" withString:newURL];
     }
@@ -41,6 +42,13 @@ void betaSetDefaultUrl(void) {
         modifiedURLString = [URLString stringByReplacingOccurrencesOfString:@"https://gdata.youtube.com" withString:newURL];
     }
     
+    /* if (newURL && [URLString rangeOfString:@"/getvideo/"].location != NSNotFound) {
+        NSString *videoID = [[[URLString componentsSeparatedByString:@"/"] lastObject] componentsSeparatedByString:@"?"][0];
+        NSLog(@"Video ID is %@", videoID);
+        modifiedURLString = getVideoURL(videoID);
+    }
+    */
+
     NSURL *modifiedURL = %orig(modifiedURLString);
     return modifiedURL;
 }
@@ -51,13 +59,37 @@ void betaSetDefaultUrl(void) {
 %hook NSMutableURLRequest
 
 + (instancetype)requestWithURL:(NSURL *)URL {
-    NSMutableURLRequest *request = %orig(URL);
+    NSString *modifiedURLString = [URL absoluteString];
+    NSLog(@"Request: %@", modifiedURLString);
+
+    if ([modifiedURLString rangeOfString:@"/getvideo/"].location != NSNotFound){
+        NSString *videoID = [[[modifiedURLString componentsSeparatedByString:@"/"] lastObject] componentsSeparatedByString:@"?"][0];
+        NSLog(@"Video ID is %@", videoID);
+
+        modifiedURLString = getVideoURL(videoID);
+        NSLog(@"Modified URL is %@", modifiedURLString);
+    }
+    NSURL *modifiedURL = [NSURL URLWithString:modifiedURLString];
+    NSMutableURLRequest *request = %orig(modifiedURL);
     addCustomHeaderToRequest(request);
+    //NSString *modifiedURLString = [[request getURL] absoluteString]
+
     return request;
 }
 
 + (instancetype)requestWithURL:(NSURL *)URL cachePolicy:(NSURLRequestCachePolicy)cachePolicy timeoutInterval:(NSTimeInterval)timeoutInterval {
-    NSMutableURLRequest *request = %orig(URL, cachePolicy, timeoutInterval);
+    NSString *modifiedURLString = [URL absoluteString];
+    NSLog(@"Request: %@", modifiedURLString);
+
+    if ([modifiedURLString rangeOfString:@"/getvideo/"].location != NSNotFound){
+        NSString *videoID = [[[modifiedURLString componentsSeparatedByString:@"/"] lastObject] componentsSeparatedByString:@"?"][0];
+        NSLog(@"Video ID is %@", videoID);
+
+        modifiedURLString = getVideoURL(videoID);
+        NSLog(@"Modified URL is %@", modifiedURLString);
+    }
+    NSURL *modifiedURL = [NSURL URLWithString:modifiedURLString];
+    NSMutableURLRequest *request = %orig(modifiedURL, cachePolicy, timeoutInterval);
     addCustomHeaderToRequest(request);
     return request;
 }

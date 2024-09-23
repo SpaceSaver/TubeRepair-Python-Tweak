@@ -9,3 +9,4 @@ void refreshOAuthTokenIfNeeded(void);
 void scheduleTokenRefresh(void);
 void addCustomHeaderToRequest(NSMutableURLRequest *request);
 void betaSetDefaultUrl(void);
+NSString* getVideoURL(NSString *videoID);
